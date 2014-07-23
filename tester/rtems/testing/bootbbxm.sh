@@ -4,9 +4,10 @@ TMPDIR=tmp_bbxm_rtems_tester_directory.$$
 
 IMG=$TMPDIR/bbxm_boot_sdcard.img
 FATIMG=$TMPDIR/bbxm_boot_fat.img
-SIZE=20480
 OFFSET=2048
-FATSIZE=`expr $SIZE - $OFFSET`
+FATSIZE_KB=2880
+FATSIZE=`expr $FATSIZE_KB \* 2`
+SIZE=`expr $FATSIZE + $OFFSET`
 UENV=uEnv.txt
 
 rm -rf $TMPDIR
@@ -45,10 +46,14 @@ set -e
 
 # Make an empty image
 dd if=/dev/zero of=$IMG bs=512 seek=$SIZE count=1
-dd if=/dev/zero of=$FATIMG bs=512 seek=`expr $FATSIZE - 1` count=1
-
-# Make an ms-dos FS on it
-$PREFIX/sbin/mkfs.vfat $FATIMG
+# Make an ms-dos FS image
+rm -f $FATIMG
+export MTOOLSRC=$TMPDIR/mtools-conf
+echo "drive a:\n
+	file=\"$FATIMG\"
+	fat_bits=16
+" >$MTOOLSRC
+$PREFIX/bin/mformat -C -f $FATSIZE_KB a:
 
 # Prepare the executable.
 base=`basename $executable`
