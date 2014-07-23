@@ -49,7 +49,7 @@ dd if=/dev/zero of=$IMG bs=512 seek=$SIZE count=1
 # Make an ms-dos FS image
 rm -f $FATIMG
 export MTOOLSRC=$TMPDIR/mtools-conf
-echo "drive a:\n
+echo "drive a:
 	file=\"$FATIMG\"
 	fat_bits=16
 " >$MTOOLSRC
